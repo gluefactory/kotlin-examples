@@ -20,7 +20,11 @@ class TestAnnotationProcessor : AbstractProcessor() {
     }
 
     override fun process(annotations: MutableSet<out TypeElement>?, roundEnv: RoundEnvironment): Boolean {
+
         val annotatedElements = roundEnv.getElementsAnnotatedWith(TestAnnotation::class.java)
+
+
+
         if (annotatedElements.isEmpty()) return false
 
         val kaptKotlinGeneratedDir = processingEnv.options[KAPT_KOTLIN_GENERATED_OPTION_NAME] ?: run {
@@ -28,9 +32,15 @@ class TestAnnotationProcessor : AbstractProcessor() {
             return false
         }
 
+        val processingEnvironment = this.processingEnv
+
         val generatedKtFile = kotlinFile("test.generated") {
             for (element in annotatedElements) {
                 val typeElement = element.toTypeElementOrNull() ?: continue
+
+                val members = processingEnv.elementUtils.getAllMembers(typeElement)
+
+                println("[Members] ${members.map { m -> (m.simpleName) }}")
 
                 property("simpleClassName") {
                     receiverType(typeElement.qualifiedName.toString())
